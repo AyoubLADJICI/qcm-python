@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM Python — Admission Master Génie Civil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F4EE;
+    --card:#FCFBF7;
+    --ink:#16314A;
+    --ink-soft:#4A6075;
+    --muted:#8A98A6;
+    --line:#DCD8CC;
+    --blue:#16314A;
+    --ochre:#C77A2B;
+    --ochre-soft:#F1E2CC;
+    --green:#2E7D52;
+    --green-bg:#E4F1E8;
+    --red:#B23B3B;
+    --red-bg:#F6E3E1;
+    --code-bg:#10283D;
+    --code-ink:#E9EEF2;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:0 20px 80px;}
+
+  header{padding:48px 0 28px; border-bottom:1px solid var(--line);}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ochre); margin:0 0 12px;
+  }
+  h1{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:34px;
+    line-height:1.12; margin:0 0 10px; letter-spacing:-.01em;
+  }
+  .sub{color:var(--ink-soft); font-size:15px; margin:0 0 18px; max-width:54ch;}
+  .meta{display:flex; gap:8px; flex-wrap:wrap;}
+  .chip{
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft);
+    background:var(--card); border:1px solid var(--line); border-radius:999px;
+    padding:5px 12px;
+  }
+
+  .progress-rail{
+    position:sticky; top:0; z-index:5; background:var(--paper);
+    padding:14px 0 12px; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:14px;
+  }
+  .bar{flex:1; height:8px; background:var(--ochre-soft); border-radius:999px; overflow:hidden;}
+  .bar>span{display:block; height:100%; width:0%; background:var(--ochre); transition:width .35s ease;}
+  .bar-label{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+
+  .q-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px 24px; margin-top:18px;
+  }
+  .q-num{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--ochre);
+    font-size:13px; letter-spacing:.05em;
+  }
+  .q-text{font-weight:500; font-size:17px; margin:6px 0 0; color:var(--ink);}
+  pre{
+    background:var(--code-bg); color:var(--code-ink);
+    font-family:'JetBrains Mono',monospace; font-size:13.5px; line-height:1.55;
+    padding:14px 16px; border-radius:8px; margin:14px 0 4px; overflow-x:auto;
+  }
+  .opts{display:grid; gap:9px; margin-top:14px;}
+  .opt{
+    display:flex; align-items:center; gap:12px; text-align:left;
+    font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--ink);
+    background:var(--card); border:1px solid var(--line); border-radius:8px;
+    padding:11px 15px; cursor:pointer; transition:border-color .15s, background .15s;
+    width:100%;
+  }
+  .opt:hover:not(.locked){border-color:var(--ink-soft);}
+  .opt .letter{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--muted);
+    width:18px; flex-shrink:0;
+  }
+  .opt.sel{border-color:var(--blue); background:#EEF1F4;}
+  .opt.sel .letter{color:var(--blue);}
+  .opt.locked{cursor:default;}
+  .opt.good{border-color:var(--green); background:var(--green-bg); color:var(--green);}
+  .opt.good .letter{color:var(--green);}
+  .opt.bad{border-color:var(--red); background:var(--red-bg); color:var(--red);}
+  .opt.bad .letter{color:var(--red);}
+  .opt .mark{margin-left:auto; font-family:'Space Grotesk',sans-serif; font-weight:700;}
+
+  .exp{
+    font-size:14px; color:var(--ink-soft); line-height:1.6;
+    margin-top:14px; padding:12px 15px; border-radius:8px;
+    background:var(--paper); border-left:3px solid var(--line);
+  }
+  .exp b.ok{color:var(--green);} .exp b.no{color:var(--red);} .exp b.skip{color:var(--muted);}
+
+  .actions{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:26px;}
+  button.cta{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:15px;
+    color:#fff; background:var(--blue); border:none; border-radius:8px;
+    padding:12px 26px; cursor:pointer; transition:transform .1s, opacity .15s;
+  }
+  button.cta:hover{opacity:.92;}
+  button.cta:active{transform:scale(.98);}
+  button.ghost{
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:15px;
+    color:var(--blue); background:transparent; border:1px solid var(--line);
+    border-radius:8px; padding:12px 22px; cursor:pointer;
+  }
+  button.ghost:hover{border-color:var(--ink-soft);}
+
+  .result{
+    background:var(--blue); color:#fff; border-radius:var(--radius);
+    padding:26px 28px; margin-top:8px; display:none;
+  }
+  .result.show{display:block;}
+  .result .grade{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:42px; line-height:1;}
+  .result .grade small{font-size:20px; font-weight:500; opacity:.7;}
+  .result .line{font-size:14px; opacity:.85; margin-top:10px; font-family:'JetBrains Mono',monospace;}
+  .result .verdict{margin-top:14px; font-size:15px; line-height:1.55;}
+
+  footer{margin-top:48px; padding-top:20px; border-top:1px solid var(--line);
+    font-size:13px; color:var(--muted); text-align:center;}
+
+  .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);}
+  @media (max-width:520px){ h1{font-size:27px;} .q-card{padding:18px 16px;} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important; scroll-behavior:auto;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Python · Test d'admission</p>
+    <h1>QCM Python — bases du langage</h1>
+    <p class="sub">Trente questions pour s'entraîner au test d'entrée en master de génie civil. Une réponse par question, puis correction détaillée et note finale.</p>
+    <div class="meta">
+      <span class="chip">30 questions</span>
+      <span class="chip">barème +1 / −0,25</span>
+      <span class="chip">niveau bases</span>
+    </div>
+  </header>
+
+  <div class="progress-rail">
+    <div class="bar"><span id="barFill"></span></div>
+    <span class="bar-label" id="barLabel">0 / 30</span>
+  </div>
+
+  <main id="quiz" aria-live="polite">
+    <h2 class="sr-only">Questionnaire Python à choix multiples</h2>
+  </main>
+
+  <div class="result" id="result" aria-live="polite">
+    <div class="grade" id="grade"></div>
+    <div class="line" id="resLine"></div>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <div class="actions">
+    <button class="cta" id="submitBtn">Voir mon score</button>
+    <button class="ghost" id="resetBtn" style="display:none;">Recommencer</button>
+  </div>
+
+  <footer>Bon courage — l'entraînement régulier fait toute la différence.</footer>
+</div>
+
+<script>
+const QUESTIONS = [
+  {q:"Que renvoie ce programme ?", code:"a = 5\nb = a - 2\nprint(a * b)", opts:["10","15","3","8"], c:1, e:"b = 5 − 2 = 3, puis a × b = 5 × 3 = 15."},
+  {q:"Que renvoie ce programme ?", code:"print(17 // 5, 17 % 5)", opts:["3 2","2 3","3.4 0","5 17"], c:0, e:"// est la division entière (17÷5 = 3) et % le reste (17 = 3×5 + 2, reste 2)."},
+  {q:"Que renvoie ce programme ?", code:"a = 7\nif a <= 3:\n    print(2*a - 1)\nelif a <= 10:\n    print(3*a - 2)\nelse:\n    print(4*a - 3)", opts:["13","25","19","7"], c:2, e:"a=7 : a≤3 est faux, a≤10 est vrai → 3×7 − 2 = 19."},
+  {q:"Que renvoie ce programme ?", code:"s = 0\nfor i in range(1, 5):\n    s = s + i\nprint(s)", opts:["15","10","6","5"], c:1, e:"range(1, 5) donne 1, 2, 3, 4 (5 exclu) → somme = 10."},
+  {q:"Que renvoie ce programme ?", code:"a = 1\nwhile a < 5:\n    a = a * 2\nprint(a)", opts:["4","5","8","16"], c:2, e:"a passe par 1 → 2 → 4 → 8. À 8 la condition (8<5) devient fausse, on affiche 8."},
+  {q:"Que renvoie ce programme ?", code:"L = [3, 1, 4, 1, 5]\nprint(len(L), L[2])", opts:["5 4","4 1","5 1","4 4"], c:0, e:"La liste a 5 éléments (len = 5). L'indexation commence à 0, donc L[2] = 4."},
+  {q:"Que renvoie ce programme ?", code:"L = [10, 20, 30, 40]\nprint(L[-1] + L[0])", opts:["50","30","60","10"], c:0, e:"L[-1] est le dernier élément (40), L[0] le premier (10) → 50."},
+  {q:"Par quoi remplacer les … pour afficher 2 4 6 8 (un par ligne) ?", code:"for i in …:\n    print(i)", opts:["range(2, 8, 2)","range(2, 9, 2)","range(2, 10)","range(1, 8, 2)"], c:1, e:"range(début, fin, pas) : range(2, 9, 2) donne 2, 4, 6, 8 (9 exclu, donc 8 inclus)."},
+  {q:"Que renvoie ce programme ?", code:"def f(n):\n    return n * n + 1\nprint(f(3))", opts:["7","9","10","6"], c:2, e:"f(3) = 3 × 3 + 1 = 10."},
+  {q:"Quel est le type de la valeur 3.14 ?", opts:["int","float","str","bool"], c:1, e:"Un nombre à virgule est de type float. int = entier, str = chaîne, bool = booléen."},
+  {q:"La fonction doit sommer les entiers de n à p inclus. Par quoi remplacer les … ?", code:"def ajoute(n, p):\n    s = 0\n    for i in …:\n        s = s + i\n    return s", opts:["range(n, p)","range(n, p+1)","range(p, n)","range(n+1, p)"], c:1, e:"range exclut la borne de fin, donc range(n, p+1) pour inclure p. ajoute(2,4)=2+3+4=9."},
+  {q:"Que renvoie ce programme ?", code:"print(3 < 5 and 2 > 4)", opts:["True","False","None","Erreur"], c:1, e:"3<5 est vrai mais 2>4 est faux. « and » exige les deux vrais → False."},
+  {q:"Que renvoie ce programme ?", code:"print(2 ** 3)", opts:["6","8","9","23"], c:1, e:"** est l'opérateur puissance : 2³ = 2×2×2 = 8."},
+  {q:"Que renvoie ce programme ?", code:'print("Genie" + "Civil")', opts:["Genie Civil","GenieCivil","Genie+Civil","Erreur"], c:1, e:"L'opérateur + entre deux chaînes les concatène, sans ajouter d'espace → GenieCivil."},
+  {q:"Que renvoie ce programme ?", code:"x = 10\nx += 5\nprint(x)", opts:["10","5","15","105"], c:2, e:"x += 5 équivaut à x = x + 5, donc 10 + 5 = 15."},
+  {q:"Que renvoie ce programme ?", code:"print(10 / 4)", opts:["2","2.5","3","2.0"], c:1, e:"En Python 3, / est la division réelle et renvoie un float : 10÷4 = 2.5."},
+  {q:"Que renvoie ce programme ?", code:"print(5 == 5.0)", opts:["True","False","Erreur","None"], c:0, e:"Python compare les valeurs numériques : 5 et 5.0 sont égaux → True."},
+  {q:"Que renvoie ce programme ?", code:"L = [1, 2, 3]\nL.append(4)\nprint(len(L))", opts:["3","4","1","Erreur"], c:1, e:"append ajoute un élément à la fin. La liste a maintenant 4 éléments."},
+  {q:"Qu'affiche ce programme ?", code:"for i in range(3):\n    print(i)", opts:["1 2 3","0 1 2","0 1 2 3","1 2"], c:1, e:"range(3) génère 0, 1, 2 (s'arrête avant 3). Chaque valeur est affichée sur une ligne."},
+  {q:"Que renvoie ce programme ?", code:'s = "Python"\nprint(s[0])', opts:["P","y","Python","0"], c:0, e:"s[0] est le 1er caractère de la chaîne (indexation à 0) → P."},
+  {q:"Que renvoie ce programme ?", code:'s = "Python"\nprint(len(s))', opts:["5","6","7","Python"], c:1, e:"len compte les caractères : P-y-t-h-o-n = 6."},
+  {q:"Que renvoie ce programme ?", code:"print(bool(0))", opts:["True","False","0","None"], c:1, e:"En Python, 0 est considéré comme « faux ». bool(0) renvoie False (tout autre nombre → True)."},
+  {q:"Que renvoie ce programme ?", code:"a = 4\nb = 2\nprint(a % b)", opts:["2","0","1","4"], c:1, e:"% donne le reste de la division. 4 est divisible par 2, reste = 0."},
+  {q:"Que renvoie ce programme ?", code:"nums = [5, 2, 8, 1]\nprint(max(nums))", opts:["5","1","8","4"], c:2, e:"max renvoie le plus grand élément de la liste → 8."},
+  {q:"Que renvoie ce programme ?", code:"print(abs(-7))", opts:["-7","7","0","Erreur"], c:1, e:"abs renvoie la valeur absolue : abs(-7) = 7."},
+  {q:"Que renvoie ce programme ?", code:"x = 5\nprint(x > 3 or x > 10)", opts:["True","False","None","Erreur"], c:0, e:"x>3 est vrai. « or » suffit qu'une condition soit vraie → True."},
+  {q:"Que renvoie ce programme ?", code:"c = 0\nfor i in range(2, 10, 2):\n    c += 1\nprint(c)", opts:["3","4","5","8"], c:1, e:"range(2, 10, 2) donne 2, 4, 6, 8 → 4 tours de boucle, donc c = 4."},
+  {q:"Que renvoie ce programme ?", code:'def salut(nom="ami"):\n    return "Bonjour " + nom\nprint(salut())', opts:["Bonjour","Bonjour ami","Bonjour nom","Erreur"], c:1, e:"Aucun argument n'est passé, donc nom prend sa valeur par défaut « ami » → Bonjour ami."},
+  {q:"Que renvoie ce programme ?", code:'s = "genie"\nprint(s[0:3])', opts:["gen","geni","eni","gni"], c:0, e:"s[0:3] prend les caractères d'indices 0, 1, 2 (3 exclu) → gen."},
+  {q:"Que renvoie ce programme ?", code:'d = {"a": 1, "b": 2}\nprint(d["b"])', opts:["1","2","b","Erreur"], c:1, e:"Un dictionnaire associe des clés à des valeurs. d[\"b\"] renvoie la valeur liée à « b » → 2."}
+];
+
+const state = Array(QUESTIONS.length).fill(null);
+let graded = false;
+const quiz = document.getElementById('quiz');
+const barFill = document.getElementById('barFill');
+const barLabel = document.getElementById('barLabel');
+const submitBtn = document.getElementById('submitBtn');
+const resetBtn = document.getElementById('resetBtn');
+const resultEl = document.getElementById('result');
+const N = QUESTIONS.length;
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function render(){
+  quiz.innerHTML = '<h2 class="sr-only">Questionnaire Python à choix multiples</h2>';
+  QUESTIONS.forEach((item, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    let html = '<div class="q-num">Question ' + (qi+1) + ' / ' + N + '</div>';
+    html += '<p class="q-text">' + esc(item.q) + '</p>';
+    if(item.code) html += '<pre>' + esc(item.code) + '</pre>';
+    html += '<div class="opts">';
+    item.opts.forEach((opt, oi) => {
+      let cls = 'opt';
+      let mark = '';
+      if(graded){
+        cls += ' locked';
+        if(oi === item.c){ cls += ' good'; mark = '<span class="mark">✓</span>'; }
+        else if(state[qi] === oi){ cls += ' bad'; mark = '<span class="mark">✗</span>'; }
+      } else if(state[qi] === oi){ cls += ' sel'; }
+      html += '<button class="' + cls + '" data-q="' + qi + '" data-o="' + oi + '">' +
+              '<span class="letter">' + String.fromCharCode(65+oi) + '</span>' +
+              '<span>' + esc(opt) + '</span>' + mark + '</button>';
+    });
+    html += '</div>';
+    if(graded){
+      const ok = state[qi] === item.c;
+      let tag = ok ? '<b class="ok">Correct.</b> '
+              : (state[qi] === null ? '<b class="skip">Non répondu.</b> ' : '<b class="no">Faux.</b> ');
+      html += '<div class="exp">' + tag + esc(item.e) + '</div>';
+    }
+    card.innerHTML = html;
+    quiz.appendChild(card);
+  });
+  if(!graded){
+    quiz.querySelectorAll('.opt').forEach(b => {
+      b.addEventListener('click', () => {
+        state[+b.dataset.q] = +b.dataset.o;
+        render(); updateBar();
+      });
+    });
+  }
+}
+
+function updateBar(){
+  const n = state.filter(x => x !== null).length;
+  barFill.style.width = (n / N * 100) + '%';
+  barLabel.textContent = n + ' / ' + N;
+}
+
+submitBtn.addEventListener('click', () => {
+  graded = true;
+  let good = 0, bad = 0;
+  state.forEach((a, i) => { if(a === null) return; a === QUESTIONS[i].c ? good++ : bad++; });
+  const pts = good - bad * 0.25;
+  const note = Math.max(0, pts / N * 20);
+  document.getElementById('grade').innerHTML = note.toFixed(1) + '<small>/20</small>';
+  document.getElementById('resLine').textContent =
+    good + ' bonnes · ' + bad + ' fausses · ' + (N - good - bad) + ' sans réponse — ' + pts.toFixed(2) + ' pts au barème';
+  let v;
+  if(note >= 16) v = "Excellent niveau — les bases sont solidement acquises.";
+  else if(note >= 12) v = "Bon niveau. Revois les questions ratées et le test sera une formalité.";
+  else if(note >= 8) v = "Les fondations sont là, mais il reste du terrain à consolider. Reprends les corrections une à une.";
+  else v = "Il faut reprendre les bases tranquillement : types, boucles, range et listes. Chaque correction explique le pourquoi.";
+  document.getElementById('verdict').textContent = v;
+  resultEl.classList.add('show');
+  submitBtn.style.display = 'none';
+  resetBtn.style.display = 'inline-flex';
+  render();
+  resultEl.scrollIntoView({behavior:'smooth', block:'center'});
+});
+
+resetBtn.addEventListener('click', () => {
+  for(let i=0;i<N;i++) state[i] = null;
+  graded = false;
+  resultEl.classList.remove('show');
+  submitBtn.style.display = 'inline-flex';
+  resetBtn.style.display = 'none';
+  render(); updateBar();
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+render();
+updateBar();
+</script>
+</body>
+</html>
